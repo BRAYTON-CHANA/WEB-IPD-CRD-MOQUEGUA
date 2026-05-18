@@ -1,0 +1,66 @@
+@import "tailwindcss";
+
+/* Importar módulos CSS - Estilos reutilizables organizados por categoría */
+@import "./components/buttons.css";    /* Estilos de botones: primary, secondary, outline, etc. */
+@import "./components/cards.css";       /* Estilos de tarjetas: card, header, body, footer */
+@import "./components/forms.css";       /* Estilos de formularios: inputs, labels, groups */
+@import "./components/navigation.css";  /* Estilos de navegación: links, nav items */
+@import "./components/tables.css";      /* Estilos de tablas: TableMultiLevel, etc. */
+@import "./utilities/typography.css";  /* Utilidades de texto: gradient, shadow, truncate */
+@import "./utilities/layout.css";       /* Utilidades de layout: container, grid, flex */
+@import "./utilities/visual.css";       /* Utilidades visuales: gradients, backdrop, shadows */
+@import "./animations/fade.css";        /* Animaciones de fade: fadeIn, fadeInUp */
+@import "./animations/slide.css";       /* Animaciones de slide: slideIn, slideInRight */
+
+/* Variables CSS globales personalizadas del tema */
+:root {
+  /* Colores del tema personalizados */
+  --color-primary: #2D366F;       /* Color primario para acciones principales */
+  --color-secondary: #57C7C2;     /* Color secundario para acentos */
+  --color-success: #10b981;       /* Color para estados exitosos */
+  --color-warning: #f59e0b;       /* Color para advertencias */
+  --color-error: #ef4444;         /* Color para errores */
+  
+  /* Colores específicos de componentes */
+  --color-sidebar-bg: #ffff;    /* Fondo de sidebar */
+  --color-sidebar-text: #000000;  /* Texto de sidebar */
+  --color-sidebar-muted: #000000; /* Texto deshabilitado sidebar */
+  --color-sidebar-accent: #000000; /* Acento sidebar */
+  
+  /* Colores para inputs de fecha/hora */
+  --color-input-bg: #ffffff;
+  --color-input-border: #d1d5db;
+  --color-input-border-focus: #9ca3af;
+  --color-input-text: #374151;
+  --color-input-hover: #f3f4f6;
+  --color-input-disabled: #f3f4f6;
+  --color-input-disabled-text: #6b7280;
+  
+  /* Sombras personalizadas */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+}
+
+/* Estilos base específicos del tema (no duplicar Tailwind) */
+html {
+  scroll-behavior: smooth;  /* Desplazamiento suave al navegar */
+}
+
+body {
+  background-color: white;  /* Fondo blanco por defecto */
+  color: black;             /* Texto negro por defecto */
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-primary: #60a5fa;
+    --color-secondary: #94a3b8;
+  }
+}
+
+.dark {
+  --color-primary: #60a5fa;
+  --color-secondary: #94a3b8;
+}
