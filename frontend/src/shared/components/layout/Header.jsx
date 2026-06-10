@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import logo from '@/../../public/logo.jpg';
+import logo from '@/../../public/logo.png';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -10,12 +10,12 @@ const Header = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  const isActive = (path) => location.pathname === path;
+  const isActive = (path) => location.pathname === path || (path !== '/' && location.pathname.startsWith(path));
 
   return (
     <header className="bg-white shadow-md border-b border-gray-200 sticky top-0 z-50">
       <nav className="container">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <div className="flex items-center">
             <div className="flex-shrink-0">
@@ -23,11 +23,9 @@ const Header = () => {
                 <img 
                   src={logo} 
                   alt="Logo" 
-                  className="h-10 w-10 object-contain mr-2"
+                  className="h-14 w-auto object-contain mr-4"
+                  style={{ maxHeight: '56px' }}
                 />
-                <span className="text-2xl font-bold text-gradient">
-                  Horarios
-                </span>
               </Link>
             </div>
           </div>
@@ -35,30 +33,32 @@ const Header = () => {
           {/* Desktop Navigation */}
           <div className="hidden md:block">
             <div className="ml-10 flex items-baseline space-x-8">
-              <Link 
-                to="/" 
+              <Link
+                to="/"
                 className={`text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive('/') ? 'bg-gray-100' : ''}`}
               >
                 Inicio
               </Link>
-              
-              <Link 
-                to="/modules" 
-                className="hidden"
+
+              <Link
+                to="/reservas"
+                className={`text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive('/reservas') ? 'bg-gray-100' : ''}`}
               >
-                Módulos
+                Reservas
               </Link>
-              <Link 
-                to="/asistencias" 
-                className={`text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive('/asistencias') ? 'bg-gray-100' : ''}`}
+
+              <Link
+                to="/inventario"
+                className={`text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive('/inventario') ? 'bg-gray-100' : ''}`}
               >
-                Asistencias
+                Inventario
               </Link>
-              <Link 
-                to="/configuracion" 
+
+              <Link
+                to="/configuracion"
                 className={`text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive('/configuracion') ? 'bg-gray-100' : ''}`}
               >
-                Configuración
+                Configuracion
               </Link>
             </div>
           </div>
@@ -89,29 +89,29 @@ const Header = () => {
         {isMenuOpen && (
           <div className="md:hidden">
             <div className="px-2 pt-2 pb-3 space-y-1">
-              <Link 
-                to="/" 
+              <Link
+                to="/"
                 className={`block px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors ${isActive('/') ? 'bg-gray-100' : ''}`}
               >
                 Inicio
               </Link>
-              <Link 
-                to="/modules" 
-                className="hidden"
+              <Link
+                to="/reservas"
+                className={`block px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors ${isActive('/reservas') ? 'bg-gray-100' : ''}`}
               >
-                Módulos
+                Reservas
               </Link>
-              <Link 
-                to="/asistencias" 
-                className={`block px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors ${isActive('/asistencias') ? 'bg-gray-100' : ''}`}
+              <Link
+                to="/inventario"
+                className={`block px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors ${isActive('/inventario') ? 'bg-gray-100' : ''}`}
               >
-                Asistencias
+                Inventario
               </Link>
-              <Link 
-                to="/configuracion" 
+              <Link
+                to="/configuracion"
                 className={`block px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors ${isActive('/configuracion') ? 'bg-gray-100' : ''}`}
               >
-                Configuración
+                Configuracion
               </Link>
             </div>
           </div>

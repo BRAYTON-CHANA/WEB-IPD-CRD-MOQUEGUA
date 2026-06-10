@@ -109,11 +109,26 @@ export const buildPayload = (formData, schema, primaryKey, formFields, originalR
           value = null;
         }
       }
+
+      // Aplicar transform personalizado del campo (ej: string → boolean)
+      if (fieldConfig?.transform && typeof fieldConfig.transform === 'function') {
+        value = fieldConfig.transform(value);
+      }
       
       // No incluir campos undefined o null (a menos que sea explícito)
       if (value !== undefined) {
         // Excluir campos vacíos que no son required
         const isRequired = fieldConfig?.required || fieldConfig?.validation?.required?.value;
+        
+        // Para arrays (ej: reference-array), preservar array vacío [] en lugar de omitir
+        const isArrayField = Array.isArray(value);
+        const isEmptyArray = isArrayField && value.length === 0;
+        
+        // Para campos array vacíos en modo edit, enviar [] para limpiar el array en BD
+        if (isEmptyArray && !isRequired && originalRecord && Array.isArray(originalValue) && originalValue.length > 0) {
+          payload[key] = [];
+          return;
+        }
         
         if (value === '' && !isRequired) {
           // En modo edit, si el valor original no era null/vacío, enviar null para vaciar el campo

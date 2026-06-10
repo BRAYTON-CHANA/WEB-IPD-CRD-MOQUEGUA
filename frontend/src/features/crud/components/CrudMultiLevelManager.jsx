@@ -13,7 +13,8 @@ import CrudFooter from '../views/CrudFooter';
  * Props:
  *   data, loading, error          — desde useTableData
  *   tableLevelConfigs             — config para TableMultiLevelRender (con handlers ya inyectados)
- *   headerProps                   — { headerTitle, headerDescription, actions: [...] }
+ *   headerProps                   — { headerTitle, headerDescription, titleClassName, descriptionClassName, actions: [...] }
+ *   toolbarSlot                   — opcional, nodo React entre header y tabla
  *   footerProps                   — opcional
  *   crudLevels                    — Array de configs CRUD, uno por tabla:
  *     [
@@ -49,7 +50,9 @@ function CrudMultiLevelManager({
   tableLevelConfigs,
   headerProps,
   footerProps,
-  crudLevels
+  crudLevels,
+  toolbarSlot,
+  fixatedFilters = null
 }) {
   return (
     <>
@@ -59,9 +62,14 @@ function CrudMultiLevelManager({
           <CrudHeader
             headerTitle={headerProps.headerTitle}
             headerDescription={headerProps.headerDescription}
+            titleClassName={headerProps.titleClassName}
+            descriptionClassName={headerProps.descriptionClassName}
             actions={headerProps.actions || []}
           />
         )}
+
+        {/* Toolbar slot — contenido entre header y tabla */}
+        {toolbarSlot && toolbarSlot}
 
         {/* Loading */}
         {loading && (
@@ -94,6 +102,7 @@ function CrudMultiLevelManager({
             <TableMultiLevelRender
               data={data}
               levelConfigs={tableLevelConfigs}
+              fixatedFilters={fixatedFilters}
             />
           </div>
         )}
@@ -120,8 +129,8 @@ function CrudMultiLevelManager({
           editTitle = 'Editar Registro',
           deleteTitle = '¿Eliminar registro?',
           deleteMessage = (row) => `¿Estás seguro de que deseas eliminar este registro?`,
-          widthClass = 'w-1/2',
-          size = 'md',
+          widthClass = 'w-full',
+          size = '3xl',
           createFormKey = 'free',
           editFormKey = 'free'
         } = modalConfig;
@@ -192,6 +201,7 @@ function CrudMultiLevelManager({
                     multiStep={multiStep}
                     confirmSubmit={confirmSubmit}
                     validation={validation}
+                    extraInitialValues={crud.selectedRow}
                     onSuccess={(result) => {
                       level.onEditSuccess?.(result);
                       crud.handleFormSuccess(result);

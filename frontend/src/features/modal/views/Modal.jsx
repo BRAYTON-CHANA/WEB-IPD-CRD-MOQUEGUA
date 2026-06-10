@@ -44,7 +44,7 @@ const Modal = ({
   animation = MODAL_DEFAULTS.animation,
   fullscreenOnMobile = MODAL_DEFAULTS.fullscreenOnMobile,
   className = '',
-  widthClass = 'w-auto',
+  widthClass = 'w-full',
   
   // Accesibilidad
   ariaLabel = null,

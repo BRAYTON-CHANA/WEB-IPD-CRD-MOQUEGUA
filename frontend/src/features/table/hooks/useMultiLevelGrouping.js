@@ -25,32 +25,30 @@ export const useMultiLevelGrouping = (data, levelConfigs) => {
       }
       
       const isLastLevel = level + 1 >= levelConfigs.length;
-      const groups = {};
+      const groups = new Map();
       
       items.forEach(item => {
-        // Si es último nivel, verificar si todos los campos del nivel son null
-        if (isLastLevel && validHeaders.length > 0) {
-          const allNull = validHeaders.every(h => item[h.title] === null || item[h.title] === undefined);
-          if (allNull) {
-            return; // Skip rows where all fields are null - no group created
-          }
+        // Skip fila si la PK del nivel es null (LEFT JOIN sin datos en cualquier nivel)
+        const boundColumn = config.boundColumn;
+        if (boundColumn && (item[boundColumn] === null || item[boundColumn] === undefined)) {
+          return;
         }
         
         const key = item[field] !== null && item[field] !== undefined ? item[field] : 'Sin valor';
-        if (!groups[key]) {
-          groups[key] = {
+        if (!groups.has(key)) {
+          groups.set(key, {
             key,
             value: item[field] || 'Sin valor',
             field,
             level: level + 1,
             config: { ...config, headers: validHeaders },
             rows: []
-          };
+          });
         }
-        groups[key].rows.push(item);
+        groups.get(key).rows.push(item);
       });
       
-      return Object.values(groups).map(groupItem => {
+      return Array.from(groups.values()).map(groupItem => {
         // Agregar visible al config basado en count de rows
         const hasValidRows = groupItem.rows.length > 0;
         groupItem.config.visible = hasValidRows;

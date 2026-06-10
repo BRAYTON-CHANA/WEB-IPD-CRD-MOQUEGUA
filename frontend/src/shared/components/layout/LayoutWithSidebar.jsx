@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import Layout from './Layout';
-import ConfigSidebar from '@/app/views/configuracion/ConfigSidebar';
+import ConfiguracionSidebar from '@/app/views/configuracion/ConfiguracionSidebar';
 
 /**
  * Layout con Sidebar para páginas de configuración
- * Incluye el ConfigSidebar a la izquierda con efecto responsive
+ * Incluye el ConfiguracionSidebar a la izquierda con efecto responsive
  */
-const LayoutWithSidebar = ({ children, sidebarComponent: Sidebar = ConfigSidebar }) => {
+const LayoutWithSidebar = ({ children, sidebarComponent: Sidebar = ConfiguracionSidebar }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (

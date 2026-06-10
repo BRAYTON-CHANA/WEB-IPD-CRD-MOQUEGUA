@@ -56,8 +56,8 @@ function Crud({
   const {
     createTitle = 'Crear Nuevo Registro',
     editTitle = 'Editar Registro',
-    size = 'md',
-    widthClass
+    size = '3xl',
+    widthClass = 'w-full'
   } = modalConfig;
 
   // Estados de modales

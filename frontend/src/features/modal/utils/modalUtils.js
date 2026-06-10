@@ -54,7 +54,7 @@ export const buildModalClasses = ({
   animation,
   fullscreenOnMobile,
   className,
-  widthClass = 'w-auto'
+  widthClass = 'w-full'
 }) => {
   const modalSize = customSize || MODAL_SIZES[size];
   

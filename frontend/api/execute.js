@@ -42,8 +42,72 @@ export default async function handler(req, res) {
     // Conectar si no está conectado
     await DatabaseManager.connect();
 
-    // Ejecutar función
-    const args = Object.values(params || {});
+    // Ejecutar función - extraer args en orden específico según función
+    let args;
+    switch (functionName) {
+      case 'selectWithLimit':
+        args = [params.table, params.limit, params.offset, params.filters, params.fields];
+        break;
+      case 'selectWithOrderBy':
+        args = [params.table, params.orderBy, params.order, params.filters, params.fields];
+        break;
+      case 'selectWithGroupBy':
+        args = [params.table, params.groupBy, params.having, params.filters, params.fields];
+        break;
+      case 'selectWithJoin':
+        args = [params.table, params.joins, params.filters, params.fields];
+        break;
+      case 'selectPaginated':
+        args = [params.table, params.page, params.pageSize, params.filters, params.fields];
+        break;
+      case 'select':
+        args = [params.table, params.filters, params.fields];
+        break;
+      case 'insert':
+        args = [params.table, params.data];
+        break;
+      case 'update':
+        args = [params.table, params.id, params.data, params.idColumn];
+        break;
+      case 'delete':
+        args = [params.table, params.id, params.idColumn];
+        break;
+      case 'getById':
+        args = [params.table, params.id, params.idColumn];
+        break;
+      case 'insertBatch':
+        args = [params.table, params.dataArray];
+        break;
+      case 'updateBatch':
+        args = [params.table, params.updates, params.idColumn];
+        break;
+      case 'deleteBatch':
+        args = [params.table, params.ids, params.idColumn];
+        break;
+      case 'upsert':
+        args = [params.table, params.conflictColumns, params.data, params.conflictTarget];
+        break;
+      case 'upsertBatch':
+        args = [params.table, params.items, params.conflictTarget];
+        break;
+      case 'count':
+        args = [params.table, params.filters];
+        break;
+      case 'aggregate':
+        args = [params.table, params.aggregate, params.column, params.filters, params.groupBy];
+        break;
+      case 'exportToJson':
+        args = [params.table, params.filters];
+        break;
+      case 'importFromJson':
+        args = [params.jsonData, params.options];
+        break;
+      case 'rawSelect':
+        args = [params.sql, ...(params.params || [])];
+        break;
+      default:
+        args = Object.values(params || {});
+    }
     console.log(`[DEBUG execute.js] ===== Función: ${functionName} =====`);
     console.log(`[DEBUG execute.js] Args:`, args);
     

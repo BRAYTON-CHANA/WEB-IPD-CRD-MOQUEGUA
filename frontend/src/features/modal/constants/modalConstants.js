@@ -97,7 +97,7 @@ export const MODAL_PATTERNS = {
 
 // Valores por defecto
 export const MODAL_DEFAULTS = {
-  size: 'md',
+  size: '3xl',
   position: 'center',
   overlayColor: 'blur',
   overlayOpacity: 30,

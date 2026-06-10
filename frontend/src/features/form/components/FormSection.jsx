@@ -18,6 +18,7 @@ const FormSection = ({
   // Opciones de estilo
   variant = 'default', // 'default' | 'bordered' | 'card'
   className = '',
+  columns = 1,
   
   // Estado
   isActive = true,
@@ -81,7 +82,7 @@ const FormSection = ({
     >
       {renderHeader()}
       
-      <div className="space-y-4">
+      <div className={columns > 1 ? `grid grid-cols-${columns} gap-x-6 gap-y-4` : 'space-y-4'}>
         {children}
       </div>
     </div>

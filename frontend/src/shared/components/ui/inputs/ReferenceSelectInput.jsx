@@ -52,6 +52,7 @@ const ReferenceSelectInput = React.memo(({
   hidden = null,
   formData = {},
   onReferenceSelectLoadComplete = null,
+  cascadeClear = null,
   ...props
 }) => {
   // Estado para manejar errores
@@ -339,10 +340,23 @@ const ReferenceSelectInput = React.memo(({
     setErrorMessage('');
   };
 
+  // Wrapper para onChange que también limpia campos en cascada
+  const handleChange = React.useCallback((fieldName, value) => {
+    props.onChange?.(fieldName, value);
+
+    // Limpiar campos dependientes cuando este campo cambia
+    if (cascadeClear && Array.isArray(cascadeClear) && fieldName === name) {
+      cascadeClear.forEach(clearField => {
+        props.onChange?.(clearField, '');
+      });
+    }
+  }, [props.onChange, cascadeClear, name]);
+
   return (
     <>
       <SelectInput
         {...props}
+        onChange={handleChange}
         name={name}
         label={label}
         options={options}

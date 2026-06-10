@@ -242,23 +242,24 @@ const SelectInput = ({
     if (!multiSelect || selectedOptions.length === 0) return null;
     
     return (
-      <div className="flex flex-wrap gap-2 mt-2">
+      <div className="flex flex-wrap gap-3 mt-3">
         {selectedOptions.map((option, index) => (
           <span
             key={option[optionValue]}
-            className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800"
+            className="inline-flex items-center px-4 py-2 rounded-lg text-base font-semibold bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg hover:shadow-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 border border-blue-800/20"
           >
             {option[optionIcon] && (
-              <span className="mr-1">{option[optionIcon]}</span>
+              <span className="mr-2 text-lg">{option[optionIcon]}</span>
             )}
-            {option[optionLabel]}
+            <span className="uppercase tracking-wide">{option[optionLabel]}</span>
             <button
               type="button"
               onClick={() => handleSelect(option)}
-              className="ml-2 text-blue-600 hover:text-blue-800"
+              className="ml-3 p-1 rounded-full bg-white/20 hover:bg-white/30 text-white transition-colors"
+              aria-label={`Eliminar ${option[optionLabel]}`}
             >
-              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 10.586 4.293a1 1 0 001.414 0L4.293 4.293z" clipRule="evenodd" />
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
               </svg>
             </button>
           </span>
@@ -390,9 +391,6 @@ const SelectInput = ({
         )}
       </div>
 
-    {/* Tags de selección múltiple */}
-    {renderSelectedTags()}
-
       {/* Dropdown de opciones */}
       {isOpen && (
         <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-md shadow-lg z-[100]">
@@ -426,6 +424,9 @@ const SelectInput = ({
           </div>
         </div>
       )}
+
+      {/* Tags de selección múltiple - debajo del dropdown */}
+      {renderSelectedTags()}
     </div>
   );
 };

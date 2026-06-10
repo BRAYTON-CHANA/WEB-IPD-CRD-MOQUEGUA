@@ -171,6 +171,7 @@ const createMultiStepStructure = (fields, pagesConfig, showWarnings = true) => {
           number: sectionNum,
           title: sectionConfig.title || '',
           description: sectionConfig.description || '',
+          columns: sectionConfig.columns || 1,
           fields: sectionFields
         });
       });

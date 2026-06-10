@@ -12,10 +12,16 @@ import React from 'react';
  * @param {string} columnType - Tipo de la columna (opcional)
  * @returns {React.ReactNode} - Elemento React renderizado
  */
-export const renderCell = (value, rowIndex, header, columnType) => {
+export const renderCell = (value, rowIndex, header, columnType, options = {}) => {
   // Manejo de valores nulos o indefinidos
   if (value === null || value === undefined) {
     return <span className="text-gray-400">-</span>;
+  }
+
+  // valueMap: texto personalizado según valor
+  if (options.valueMap) {
+    const key = String(value);
+    if (key in options.valueMap) return options.valueMap[key];
   }
   
   // Manejo de booleanos - SOLO si la columna es de tipo boolean

@@ -27,7 +27,10 @@ const MultiStepNavigator = ({
   loading = false,
   
   // Título de página actual (opcional)
-  currentPageTitle = ''
+  currentPageTitle = '',
+
+  // Modo de render: 'all' | 'header' | 'buttons'
+  renderMode = 'all'
 }) => {
   /**
    * Renderizar indicador de dots
@@ -147,6 +150,23 @@ const MultiStepNavigator = ({
       </div>
     );
   };
+
+  if (renderMode === 'header') {
+    return (
+      <div className="multi-step-navigator-header">
+        {renderDots()}
+        {renderPageInfo()}
+      </div>
+    );
+  }
+
+  if (renderMode === 'buttons') {
+    return (
+      <div className="multi-step-navigator-buttons">
+        {renderNavigationButtons()}
+      </div>
+    );
+  }
 
   return (
     <div className="multi-step-navigator">

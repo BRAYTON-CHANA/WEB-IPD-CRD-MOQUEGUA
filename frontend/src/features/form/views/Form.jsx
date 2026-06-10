@@ -262,7 +262,7 @@ const Form = ({
     const error = (touched[name] || submitAttempted) ? errors[name] : '';
     // Solo pasa formData si el campo tiene hidden, blocked, referenceSelfTable/Filter, o referenceFilters con templates dinámicos
     const hasDynamicReferenceFilters = field.referenceFilters?.some(f => typeof f.value === 'string' && f.value.includes('{'));
-    const conditionalFormData = (field.hidden || field.blocked || field.referenceSelfTable || field.referenceSelfFilter || hasDynamicReferenceFilters) ? formData : undefined;
+    const conditionalFormData = (field.hidden || field.blocked || field.labelWhen || field.referenceSelfTable || field.referenceSelfFilter || hasDynamicReferenceFilters) ? formData : undefined;
 
     return (
       <FormField
@@ -286,6 +286,11 @@ const Form = ({
   const renderSection = (section) => {
     if (!section.fields || section.fields.length === 0) return null;
 
+    const allHidden = section.fields.every(field =>
+      field.hidden ? evaluateHidden(field.hidden, formData) : false
+    );
+    if (allHidden) return null;
+
     return (
       <FormSection
         key={section.id}
@@ -293,6 +298,7 @@ const Form = ({
         number={section.number}
         title={section.title}
         description={section.description}
+        columns={section.columns || 1}
         isActive={true}
       >
         {section.fields.map(renderField)}
@@ -333,29 +339,33 @@ const Form = ({
   /**
    * Renderiza navegación para multi-step
    */
-  const renderMultiStepNavigation = () => {
-    if (!isMultiStep) return null;
+  const multiStepProps = {
+    currentPage,
+    totalPages,
+    completedPages,
+    isLastPage,
+    isFirstPage,
+    canGoNext,
+    canGoPrev,
+    onNext: handleNextPage,
+    onPrev: handlePrevPage,
+    goToPage,
+    showDots: multiStep?.showDots !== false,
+    nextText: multiStep?.nextText || 'Siguiente',
+    prevText: multiStep?.prevText || 'Atrás',
+    submitText: multiStep?.submitText || 'Confirmar',
+    loading,
+    currentPageTitle: currentPageData?.title || ''
+  };
 
-    return (
-      <MultiStepNavigator
-        currentPage={currentPage}
-        totalPages={totalPages}
-        completedPages={completedPages}
-        isLastPage={isLastPage}
-        isFirstPage={isFirstPage}
-        canGoNext={canGoNext}
-        canGoPrev={canGoPrev}
-        onNext={handleNextPage}
-        onPrev={handlePrevPage}
-        goToPage={goToPage}
-        showDots={multiStep?.showDots !== false}
-        nextText={multiStep?.nextText || 'Siguiente'}
-        prevText={multiStep?.prevText || 'Atrás'}
-        submitText={multiStep?.submitText || 'Confirmar'}
-        loading={loading}
-        currentPageTitle={currentPageData?.title || ''}
-      />
-    );
+  const renderMultiStepHeader = () => {
+    if (!isMultiStep) return null;
+    return <MultiStepNavigator {...multiStepProps} renderMode="header" />;
+  };
+
+  const renderMultiStepButtons = () => {
+    if (!isMultiStep) return null;
+    return <MultiStepNavigator {...multiStepProps} renderMode="buttons" />;
   };
 
   /**
@@ -380,11 +390,14 @@ const Form = ({
   return (
     <>
       <form onSubmit={handleSubmit} className={className} noValidate>
+        {/* Dots + título de paso arriba */}
+        {isMultiStep && renderMultiStepHeader()}
+
         {/* Contenido de la página (campos) */}
         {renderPageContent()}
-        
-        {/* Navegación multi-step o botón submit */}
-        {isMultiStep ? renderMultiStepNavigation() : renderSinglePageSubmit()}
+
+        {/* Botones siguiente/atrás abajo o submit single-page */}
+        {isMultiStep ? renderMultiStepButtons() : renderSinglePageSubmit()}
       </form>
 
       {/* Modal de confirmación */}

@@ -15,7 +15,7 @@ dist/
 build/
 frontend/dist/
 frontend/build/
-
+database
 # Vercel
 .vercel/
 

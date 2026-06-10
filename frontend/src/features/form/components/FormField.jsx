@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useMemo, useCallback } from 'react';
 import { getInputComponent } from '../utils/inputMapping';
-import { evaluateHidden, evaluateBlocked } from '../utils/conditionEvaluator';
+import { evaluateHidden, evaluateBlocked, evaluateOperatorSet } from '../utils/conditionEvaluator';
 
 /**
  * Componente para renderizar un campo de formulario individual
@@ -27,16 +27,12 @@ const FormField = ({
     showTypeIndicator,
     hidden,
     blocked,
-    hiddenValue
+    hiddenValue,
+    labelWhen
   } = field;
 
   // Evaluar si el campo debe ocultarse (renombrado de condition a hidden)
   const isHidden = evaluateHidden(hidden, formData);
-
-  // Si el campo está oculto, no renderizar nada
-  if (isHidden) {
-    return null;
-  }
 
   // Evaluar si el campo debe bloquearse
   const { isBlocked, shouldClear } = evaluateBlocked(blocked, formData);
@@ -181,6 +177,21 @@ const FormField = ({
           referenceOriginalValue: field.referenceOriginalValue,
           blocked: field.blocked,
           placeholder: field.placeholder,
+          searchable: field.searchable,
+          cascadeClear: field.cascadeClear
+        };
+
+      case 'reference-array':
+        return {
+          referenceTable: field.referenceTable,
+          referenceField: field.referenceField,
+          referenceLabelField: field.referenceLabelField,
+          referenceQuery: field.referenceQuery,
+          referenceDescriptionField: field.referenceDescriptionField,
+          referenceFilters: field.referenceFilters,
+          blocked: field.blocked,
+          hidden: field.hidden,
+          placeholder: field.placeholder,
           searchable: field.searchable
         };
 
@@ -303,6 +314,18 @@ const FormField = ({
     ...(type === 'reference-select' && onReferenceSelectLoadComplete ? { onReferenceSelectLoadComplete } : {})
   }), [commonProps, specificProps, conditionalProps, type, onReferenceSelectLoadComplete]);
 
+  // Si el campo está oculto, no renderizar nada
+  if (isHidden) {
+    return null;
+  }
+
+  // Resolver label dinámico según labelWhen (cálculo puro, después de todos los hooks)
+  const resolvedLabel = (() => {
+    if (!labelWhen || !Array.isArray(labelWhen)) return label;
+    const match = labelWhen.find(({ condition }) => evaluateOperatorSet(condition, formData));
+    return match ? match.label : label;
+  })();
+
   return (
     <div className="relative">
       {shouldShowTypeIndicator && (
@@ -312,7 +335,7 @@ const FormField = ({
           </span>
         </div>
       )}
-      <InputComponent {...inputProps} />
+      <InputComponent {...inputProps} label={resolvedLabel} />
     </div>
   );
 };

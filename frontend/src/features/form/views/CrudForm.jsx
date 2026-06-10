@@ -39,7 +39,10 @@ const CrudForm = ({
 
   // Confirmación modal
   confirmSubmit = false,
-  confirmConfig = {}
+  confirmConfig = {},
+
+  // Valores adicionales para initialValues (ej: columnas de un view)
+  extraInitialValues = {}
 }) => {
   const [fieldErrors, setFieldErrors] = useState([]);
   const [submitAttempted, setSubmitAttempted] = useState(false);
@@ -57,11 +60,16 @@ const CrudForm = ({
 
   // Memoizar initialValues para evitar re-renders en cascada
   const initialValues = useMemo(() => {
-    return mode === 'edit' && record
+    const base = mode === 'edit' && record
       ? fields.reduce((acc, field) => {
-          const value = record[field.name];
+          let value = record[field.name];
           // Preservar 0 y false como valores válidos, solo usar '' para null/undefined
-          acc[field.name] = value !== null && value !== undefined ? value : '';
+          value = value !== null && value !== undefined ? value : '';
+          // Aplicar reverseTransform para convertir valor BD al formato del input (ej: boolean → string de select)
+          if (field.reverseTransform && typeof field.reverseTransform === 'function' && value !== '') {
+            value = field.reverseTransform(value);
+          }
+          acc[field.name] = value;
           return acc;
         }, {})
       : fields.reduce((acc, field) => {
@@ -69,7 +77,19 @@ const CrudForm = ({
           acc[field.name] = field.defaultValue !== undefined ? field.defaultValue : '';
           return acc;
         }, {});
-  }, [mode, record, fields]);
+
+    // Merge valores extra (ej: columnas de un view como ID_INFRAESTRUCTURA)
+    if (mode === 'edit' && extraInitialValues && Object.keys(extraInitialValues).length > 0) {
+      fields.forEach(field => {
+        const extraValue = extraInitialValues[field.name];
+        if (extraValue !== undefined && extraValue !== null && base[field.name] === '') {
+          base[field.name] = extraValue;
+        }
+      });
+    }
+
+    return base;
+  }, [mode, record, fields, extraInitialValues]);
 
   // Resetear errores cuando cambia el schema
   useEffect(() => {

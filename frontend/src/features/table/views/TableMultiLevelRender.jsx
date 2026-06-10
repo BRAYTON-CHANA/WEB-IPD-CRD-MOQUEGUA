@@ -8,9 +8,24 @@ import { renderCell } from '@/shared/utils/cellRenderer';
  * TableMultiLevelRender - Tabla multinivel profesional
  * Renderiza datos agrupados en tabla HTML con expandible/colapsable y acciones
  */
-const TableMultiLevelRender = ({ data, levelConfigs }) => {
+const TableMultiLevelRender = ({ data, levelConfigs, fixatedFilters = null }) => {
+  // Aplicar filtros fijos antes de agrupar
+  const filteredData = React.useMemo(() => {
+    if (!fixatedFilters || fixatedFilters.length === 0) return data;
+    return data.filter(row =>
+      fixatedFilters.every(({ column, op, value }) => {
+        const cell = row[column];
+        if (op === '=') return cell === value;
+        if (op === '!=') return cell !== value;
+        if (op === '>') return cell > value;
+        if (op === '<') return cell < value;
+        return true;
+      })
+    );
+  }, [data, fixatedFilters]);
+
   // Agrupar datos según levelConfigs usando custom hook
-  const groupedData = useMultiLevelGrouping(data, levelConfigs);
+  const groupedData = useMultiLevelGrouping(filteredData, levelConfigs);
   
   // Estado para tracking de grupos expandidos
   const [expandedGroups, setExpandedGroups] = useState(new Set());
@@ -97,7 +112,7 @@ const TableMultiLevelRender = ({ data, levelConfigs }) => {
         {headers.map((header, idx) => (
           <td key={header.title} className="px-5 py-3 whitespace-nowrap text-sm text-gray-700" style={idx === 0 ? { paddingLeft: `${indent + 20}px` } : {}}>
             <span className="font-medium text-gray-800">
-              {renderCell(row[header.title], 0, header.title, header.type)}
+              {renderCell(row[header.title], 0, header.title, header.type, { valueMap: header.valueMap })}
             </span>
           </td>
         ))}
@@ -149,18 +164,30 @@ const TableMultiLevelRender = ({ data, levelConfigs }) => {
         {/* Fila del grupo */}
         <tr className="bg-slate-50 hover:bg-slate-100/80 border-b border-slate-200/60 transition-colors duration-150">
           {isLeafGroup ? (
-            /* Grupo hoja: renderizar celdas individuales por header */
+            /* Grupo hoja: renderizar celda del field + celdas individuales por header */
             <>
-              {group.config.headers?.map((header, idx) => (
-                <td key={header.title} className="px-5 py-3.5 whitespace-nowrap text-sm text-gray-700" style={idx === 0 ? { paddingLeft: `${indent + 20}px` } : {}}>
+              {/* Celda del field (primera columna) */}
+              {group.config.field && (
+                <td className="px-5 py-3.5 whitespace-nowrap text-sm text-gray-700" style={{ paddingLeft: `${indent + 20}px` }}>
                   <span className="font-medium text-gray-800">
-                    {renderCell(group.rows[0]?.[header.title], 0, header.title, header.type)}
+                    {renderCell(group.rows[0]?.[group.config.field], 0, group.config.field, 'string')}
+                  </span>
+                </td>
+              )}
+              {group.config.headers?.map((header) => (
+                <td key={header.title} className="px-5 py-3.5 whitespace-nowrap text-sm text-gray-700">
+                  <span className="font-medium text-gray-800">
+                    {renderCell(group.rows[0]?.[header.title], 0, header.title, header.type, { valueMap: header.valueMap })}
                   </span>
                 </td>
               ))}
-              {group.config.headers?.length < maxDataColumns && Array.from({ length: maxDataColumns - group.config.headers.length }).map((_, idx) => (
-                <td key={`empty-${idx}`} className="px-5 py-3.5 whitespace-nowrap text-sm text-gray-700"></td>
-              ))}
+              {(() => {
+                const renderedCols = (group.config.field ? 1 : 0) + (group.config.headers?.length || 0);
+                const emptyCount = maxDataColumns - renderedCols;
+                return emptyCount > 0 ? Array.from({ length: emptyCount }).map((_, idx) => (
+                  <td key={`empty-${idx}`} className="px-5 py-3.5 whitespace-nowrap text-sm text-gray-700"></td>
+                )) : null;
+              })()}
             </>
           ) : (
             /* Grupo con hijos: renderizar celda de field + celdas de headers */
@@ -207,7 +234,7 @@ const TableMultiLevelRender = ({ data, levelConfigs }) => {
               {group.config.headers?.map((header) => (
                 <td key={header.title} className="px-5 py-3.5 whitespace-nowrap text-sm text-gray-700">
                   <span className="font-medium text-gray-800">
-                    {renderCell(group.rows[0]?.[header.title], 0, header.title, header.type)}
+                    {renderCell(group.rows[0]?.[header.title], 0, header.title, header.type, { valueMap: header.valueMap })}
                   </span>
                 </td>
               ))}
@@ -247,15 +274,20 @@ const TableMultiLevelRender = ({ data, levelConfigs }) => {
             {group.children[0] && group.children[0].config.visible !== false && group.children[0].config.headers?.length > 0 && (
               <tr className="bg-slate-50/60 border-b border-slate-200/40">
                 {(() => {
-                  const headers = group.children[0].config.headers;
+                  const childConfig = group.children[0].config;
+                  const headers = childConfig.headers;
                   return (
                     <>
-                      <th className="px-5 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider" style={{ paddingLeft: `${indent + 44}px` }}>
-                        {headers[0]?.title}
-                      </th>
-                      {headers.slice(1).map(header => (
+                      {/* Primera columna: el field del nivel hijo */}
+                      {childConfig.field && (
+                        <th className="px-5 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider" style={{ paddingLeft: `${indent + 44}px` }}>
+                          {childConfig.fieldLabel ?? childConfig.field}
+                        </th>
+                      )}
+                      {/* Columnas adicionales de headers */}
+                      {headers.map(header => (
                         <th key={header.title} className="px-5 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                          {header.title}
+                          {header.label ?? header.title}
                         </th>
                       ))}
                       {hasAnyActions && (
@@ -318,16 +350,17 @@ const TableMultiLevelRender = ({ data, levelConfigs }) => {
   const getMainHeaders = () => {
     const firstLevelHeaders = levelConfigs[0]?.headers?.filter(h => h?.title) || [];
     const field = levelConfigs[0]?.field;
+    const fieldLabel = levelConfigs[0]?.fieldLabel;
     // Si hay field + headers, incluir field como primera columna
     if (field && firstLevelHeaders.length > 0) {
-      return [{ title: field }, ...firstLevelHeaders];
+      return [{ title: field, label: fieldLabel }, ...firstLevelHeaders];
     }
     if (firstLevelHeaders.length > 0) {
       return firstLevelHeaders;
     }
     // Si no hay headers, usar el field como columna
     if (field) {
-      return [{ title: field }];
+      return [{ title: field, label: fieldLabel }];
     }
     return [];
   };
@@ -344,10 +377,10 @@ const TableMultiLevelRender = ({ data, levelConfigs }) => {
             {mainHeaders.map(header => (
               <th
                 key={header.title}
-                className="px-5 py-3.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider"
+                className={`px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wider ${header.headerClassName || 'text-slate-500'}`}
                 colSpan={firstLevelHasHeaders ? undefined : maxDataColumns}
               >
-                {header.title}
+                {header.label ?? header.title}
               </th>
             ))}
 
